@@ -1,4 +1,4 @@
 import { Router } from "express";
-const chatsRoutes = Router();
-export default chatsRoutes;
+const chatRoutes = Router();
+export default chatRoutes;
 //# sourceMappingURL=chat-routes.js.map
