@@ -1,15 +1,8 @@
-import express from 'express'
-
-const app = express();
-
-//middlewares
-app.use(express.json())
-
-app.delete( "/user/:id", ( req, res, next ) =>
-{
-  console.log( req.params.id );
-  return res.send( "hello" );
-})
-
+import app from './app.js'
+import { connectToDatabase } from './db/connection.js';
+const PORT = process.env.PORT || 5000
 //connections and listenrs
-app.listen( 4000, () => console.log( "server open" ) );
+connectToDatabase().then( () =>
+{
+  app.listen( PORT, () => console.log( `server is ready at PORT ${PORT} & connected to Database`) );
+} ).catch( ( err ) => console.log( err ) );
