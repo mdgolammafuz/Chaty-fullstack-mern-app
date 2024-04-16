@@ -32,28 +32,32 @@ export const userSignUp = async (
 {
   try
   {
-    // user signup
     const { name, email, password } = req.body;
     const existingUser = await User.findOne( { email } );
+    //check if the user already exists 
     if ( existingUser )
     {
       return res.status( 401 ).send( "User is already registered" );
     }
+    
     const hashedPassword = await hash( password, 10 );
     const user = new User( { name, email, password: hashedPassword } );
     await user.save();
 
-    // create token and store cookie
+    // clear previous cookie
     res.clearCookie( COOKIE_NAME, {
       path: "/",
       domain: "localhost",
       httpOnly: true,
       signed: true,
-    });
+    } );
+    
+    // create jwt token once a user signs up
     const token = createToken( user._id.toString(), user.email, "7d" );
     const expires = new Date();
     expires.setDate(expires.getDate() + 7)
 
+   // send the jwt token from the backend with http only cookie
     res.cookie( COOKIE_NAME, token, {
       path: "/",
       domain: "localhost",
@@ -80,26 +84,36 @@ export const userLogIn = async (
   {
     // user login
     const { email, password } = req.body;
-    const user = await User.findOne({email})
+    const user = await User.findOne( { email } );
+    
+    // check if a user exists
     if ( !user )
     {
       return res.status( 401 ).send( "User not registered" );
     }
+
+    //check if the password is correct
     const isPasswordCorrect = await compare( password, user.password );
+
     if ( !isPasswordCorrect )
     {
       return res.status( 403 ).send( "Incorrect Password" );
     }
+    
+    // clear previous Cookie when a user logs in again
     res.clearCookie( COOKIE_NAME, {
       path: "/",
       domain: "localhost",
       httpOnly: true,
       signed: true,
-    });
+    } );
+    
+    // create a token once a user logs in
     const token = createToken( user._id.toString(), user.email, "7d" );
     const expires = new Date();
     expires.setDate(expires.getDate() + 7)
 
+    // send the jwt token from the backend with http only cookie
     res.cookie( COOKIE_NAME, token, {
       path: "/",
       domain: "localhost",
@@ -107,6 +121,7 @@ export const userLogIn = async (
       httpOnly: true,
       signed: true,
     } );
+
     return res.status( 200 ).json( { message: "OK", id: user._id.toString() } );
   } catch ( error )
   {

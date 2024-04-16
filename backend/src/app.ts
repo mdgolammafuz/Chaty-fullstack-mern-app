@@ -8,7 +8,8 @@ const app = express();
 
 //middlewares
 app.use( express.json() );
-app.use(cookieParser(process.env.COOKIE_SECRET))
+app.use( cookieParser( process.env.COOKIE_SECRET ) );
+
 //remove this in production mode
 app.use( morgan( "dev" ) );
 

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { body, ValidationChain, validationResult } from "express-validator";
 
+// custom validator middleware for user signin and sign up
 export const validate = ( validations: ValidationChain[] ) =>
 {
   return async ( req: Request, res: Response, next: NextFunction ) =>
