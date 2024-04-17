@@ -1,4 +1,6 @@
+import { NextFunction } from 'express';
 import jwt from 'jsonwebtoken'
+import { COOKIE_NAME } from './constants.js';
 // create a jwt token
 export const createToken = ( id: string, email: string, expiresIn ) =>
 {
@@ -8,3 +10,13 @@ export const createToken = ( id: string, email: string, expiresIn ) =>
   } );
   return token;
 };
+
+export const verifyToken = async(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) =>
+{
+  const token = req.signedCookies[ `{COOKIE_NAME}` ];
+
+}
