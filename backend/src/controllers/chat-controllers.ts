@@ -66,7 +66,7 @@ export const sendChatsToUser = async (
     {
       return res.status( 401 ).send( "Permissions didn't match" );
     }
-    return res.status( 200 ).json( { message: "OK", name: user.name, email: user.email } );
+    return res.status( 200 ).json( { message: "OK", chats: user.chats  } );
   } catch ( error )
   {
     console.log( error );
