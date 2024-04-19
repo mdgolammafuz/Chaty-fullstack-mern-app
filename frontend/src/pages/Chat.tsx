@@ -1,73 +1,33 @@
-import { Box, Avatar, Typography, Button} from "@mui/material"
+import { Box, Avatar, Typography, Button, Icon, IconButton} from "@mui/material"
 import { useAuth } from "../context/AuthContext"
 import red from "@mui/material/colors/red";
+import { ChatItem } from "../components/chat/ChatItem";
+import { IoMdSend } from "react-icons/io";
+import { useRef, useState } from "react";
+import { sendChatRequest } from "../helpers/api-communicator";
 
-const chatMessages =  [
-  {
-    "role": "system",
-    "content": "You are PitGirl, a female race engineer who helps Kris Roberts who is a sim racer on the iRacing service and Twitch streamer known as @Robertsmania.  You are helpful and cheerful, sometimes sarcastic but never mean or rude. Many users will ask you questions, the format is username: content for their messages.  Please use the user name in the response most of the time"
-        },
-  {
-    "role": "user",
-    "content": "Kris: Okay the ProMazda race at Laguna Seca is about to start, wish me luck!"
-        },
-  {
-    "role": "assistant",
-    "content": "Good luck, Kris! You got this! Remember to stay focused and keep your cool."
-        },
-  {
-    "role": "user",
-    "content": "Lakel: Where is this race?"
-        },
-  {
-    "role": "assistant",
-    "content": "This race is taking place at Laguna Seca, Lakel."
-        },
-  {
-    "role": "user",
-    "content": "Kruvinas: hey I just got here, whats going on?"
-        },
-  {
-    "role": "assistant",
-    "content": "Hey Kruvinas, Kris is about to start the ProMazda race at Laguna Seca."
-        },
-  {
-    "role": "system",
-    "content": "The race ended and now we are racing Lotus 79 cars at Summit Point"
-        },
-  {
-    "role": "user",
-    "content": "Lakel: Where are we now?"
-        },
-  {
-    "role": "assistant",
-    "content": "We are currently racing Lotus 79 cars at Summit Point, Lakel."
-        },
-  {
-    "role": "user",
-    "content": "QTBear: what has Lakel been asking about?"
-        },
-  {
-    "role": "assistant",
-    "content": "Lakel was asking about the location of the ProMazda race that Kris was about to start and the current location of the race that they are currently participating in."
-        },
-  {
-    "role": "user",
-    "content": "QTBear: who are you?"
-        },
-  {
-    "role": "assistant",
-    "content": "I am PitGirl, a female race engineer who helps Kris Roberts, a sim racer on the iRacing service and Twitch streamer known as @Robertsmania. My job is to assist Kris in any way possible during his races."
-        },
-  {
-    "role": "user",
-    "content": "Lakel: What is iRacing and can you use VR with it?"
-        }
-];
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export default function Chat ()
 {
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const auth = useAuth();
+  const [ chatMessages, setChatMessages ] = useState<Message[]>( [] );
+  const handleSubmit = async () =>
+  {
+    const content = inputRef.current?.value as string;
+    if ( inputRef && inputRef.current )
+    {
+      inputRef.current.value = "";
+    }
+    const newMessage: Message = { role: "user", content };
+    setChatMessages( ( prev ) => [ ...prev, newMessage ] );
+    const chatData = await sendChatRequest( content );
+    setChatMessages( [ ...chatData.chats ] )
+  };
   return <Box
     sx={ {
       display: 'flex',
@@ -167,10 +127,44 @@ export default function Chat ()
           scrollBehavior: "smooth",
         }}
       >
-        { chatMessages.map( ( chat ) =>
-        (<div>{ chat.content }</div> )
+        { chatMessages.map( ( chat, index ) =>
+          // @ts-expect-error
+        (<ChatItem content={chat.content} role={chat.role} key={index}/> )
         ) }
       </Box>
+      <div
+        style={ {
+          width: "100%",
+          padding: "20px",
+          borderRadius: 8,
+          backgroundColor: "rgb(17,27,39)",
+          display: "flex",
+          margin:"auto",
+        } }>
+        {""}
+        <input
+          ref={inputRef}
+          type="text"
+          style={ {
+            width: "100%",
+            backgroundColor: "transparent",
+            padding: "10px",
+            border: "none",
+            outline: "none",
+            color: "white",
+            fontSize: "20px",
+          }}
+        />
+        <IconButton
+          onClick={handleSubmit}
+          sx={ {
+            ml: "auto",
+            color: "white"
+          }}
+        >
+          <IoMdSend/>
+        </IconButton>
+      </div>
     </Box>
   </Box>
 }

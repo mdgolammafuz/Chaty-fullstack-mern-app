@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getAllUsers, userLogIn, userSignUp, verifyUser } from "../controllers/user-controller.js";
+import { getAllUsers, userLogIn, userSignUp, verifyUser } from "../controllers/user-controllers.js";
 import { validate, signupValidator, loginValidator} from "../utils/validators.js"
 import { verifyToken } from "../utils/token-manager.js";
 const userRoutes = Router();
