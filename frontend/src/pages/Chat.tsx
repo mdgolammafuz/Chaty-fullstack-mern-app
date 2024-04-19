@@ -1,11 +1,12 @@
-import { Box, Avatar, Typography, Button, Icon, IconButton} from "@mui/material"
+import { Box, Avatar, Typography, Button, IconButton} from "@mui/material"
 import { useAuth } from "../context/AuthContext"
 import red from "@mui/material/colors/red";
 import { ChatItem } from "../components/chat/ChatItem";
 import { IoMdSend } from "react-icons/io";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { deleteUserChats, getUserChats, sendChatRequest } from "../helpers/api-communicator";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   role: "user" | "assistant";
@@ -14,9 +15,11 @@ type Message = {
 
 export default function Chat ()
 {
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null)
   const auth = useAuth();
   const [ chatMessages, setChatMessages ] = useState<Message[]>( [] );
+
   const handleSubmit = async () =>
   {
     const content = inputRef.current?.value as string;
@@ -30,6 +33,7 @@ export default function Chat ()
     setChatMessages( [ ...chatData.chats ] )
     
   };
+
   const handleDeleteChats = async () =>
   {
     try
@@ -43,6 +47,7 @@ export default function Chat ()
       toast.error( "Deleting chats failed", {id : "deletechats"})
     }
   };
+
   useLayoutEffect( () =>
   {
     if ( auth?.isLoggedIn && auth.user )
@@ -59,9 +64,18 @@ export default function Chat ()
         {
           console.log( err );
           toast.error( "Loading Failed", { id: "loadchats" } );
-      })
+        } )
     }
-  },[auth])
+  }, [ auth ] );
+
+  useEffect( () =>
+  {
+    if ( !auth?.user )
+    {
+      return navigate("/login")
+    }
+  },[auth,navigate])
+
   return <Box
     sx={ {
       display: 'flex',
